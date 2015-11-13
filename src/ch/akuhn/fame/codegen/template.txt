@@ -1,0 +1,199 @@
+%%% Package
+// --AUTOGENCODE--, please do not change
+package --PACKAGE--;
+
+import ch.akuhn.fame.MetaRepository;
+
+public class --MODEL-- {
+
+    public static MetaRepository metamodel() {
+        MetaRepository metamodel = new MetaRepository();
+        importInto(metamodel);
+        return metamodel;
+    }
+    
+    public static void importInto(MetaRepository metamodel) {
+--ADDCLASSES--
+    }
+
+}
+
+%%% Package.Add
+        metamodel.getDescription(--PACKAGE--.--TYPE--.class);
+
+%%% Class
+// --AUTOGENCODE--, please do not change
+package --PACKAGE--;
+
+--IMPORTS--
+
+@FamePackage("--THISPACKAGE--")
+@FameDescription("--THISNAME--")
+public class --THISTYPE-- --EXTENDS-- {
+
+--FIELDS--
+
+--METHODS--
+
+}
+
+%%% Import
+
+import --IMPORT--;
+
+%%% One.Field
+    private --TYPE-- --FIELD--;
+    
+%%% Many.Field
+    private Collection<--TYPE--> --FIELD--; 
+
+%%% One.Getter
+    @FameProperty(name = "--NAME--"--PROPS--)
+    public --TYPE-- --GETTER--() {
+        return --FIELD--;
+    }
+
+%%% One.Derived.Getter
+    @FameProperty(name = "--NAME--"--PROPS--)
+    public --TYPE-- --GETTER--() {
+        // TODO: this is a derived property, implement this method manually.
+        throw new UnsupportedOperationException("Not yet implemented!");  
+    }
+    
+%%% Many.Derived.Getter
+    @FameProperty(name = "--NAME--"--PROPS--)
+    public Collection<--TYPE--> --GETTER--() {
+        // TODO: this is a derived property, implement this method manually.
+        throw new UnsupportedOperationException("Not yet implemented!");  
+    }
+        
+%%% One.Setter
+    public void --SETTER--(--TYPE-- --FIELD--) {
+        this.--FIELD-- = --FIELD--;
+    }
+    
+%%% Many.Getter
+    @FameProperty(name = "--NAME--"--PROPS--)
+    public Collection<--TYPE--> --GETTER--() {
+        if (--FIELD-- == null) --FIELD-- = new HashSet<--TYPE-->();
+        return --FIELD--;
+    }
+    
+%%% Many.Setter
+    public void --SETTER--(Collection<? extends --TYPE--> --FIELD--) {
+        this.--GETTER--().clear();
+        this.--GETTER--().addAll(--FIELD--);
+    }                    
+
+%%% ManyOne.Getter 
+    @FameProperty(name = "--NAME--", opposite = "--OPPOSITENAME--"--PROPS--)
+    public Collection<--TYPE--> --GETTER--() {
+        if (--FIELD-- == null) {
+            --FIELD-- = new MultivalueSet<--TYPE-->() {
+                @Override
+                protected void clearOpposite(--TYPE-- e) {
+                    e.--OPPOSITESETTER--(null);
+                }
+                @Override
+                protected void setOpposite(--TYPE-- e) {
+                    e.--OPPOSITESETTER--(--THISTYPE--.this);
+                }
+            };
+        }
+        return --FIELD--;
+    }
+    
+%%% ManyOne.Setter
+    public void --SETTER--(Collection<? extends --TYPE--> --FIELD--) {
+        this.--GETTER--().clear();
+        this.--GETTER--().addAll(--FIELD--);
+    }                    
+    
+        
+%%% OneMany.Getter
+    @FameProperty(name = "--NAME--", opposite = "--OPPOSITENAME--"--PROPS--)
+    public --TYPE-- --GETTER--() {
+        return --FIELD--;
+    }
+
+%%% OneMany.Setter
+    public void --SETTER--(--TYPE-- --FIELD--) {
+        if (this.--FIELD-- != null) {
+            if (this.--FIELD--.equals(--FIELD--)) return;
+            this.--FIELD--.--OPPOSITEGETTER--().remove(this);
+        }
+        this.--FIELD-- = --FIELD--;
+        if (--FIELD-- == null) return;
+        --FIELD--.--OPPOSITEGETTER--().add(this);
+    }
+    
+%%% OneOne.Getter
+    @FameProperty(name = "--NAME--", opposite = "--OPPOSITENAME--"--PROPS--)
+    public --TYPE-- --GETTER--() {
+        return --FIELD--;
+    }
+
+%%% OneOne.Setter
+    public void --SETTER--(--TYPE-- --FIELD--) {
+        if (this.--FIELD-- == null ? --FIELD-- != null : !this.--FIELD--.equals(--FIELD--)) {
+            --TYPE-- old_--FIELD-- = this.--FIELD--;
+            this.--FIELD-- = --FIELD--;
+            if (old_--FIELD-- != null) old_--FIELD--.--OPPOSITESETTER--(null);
+            if (--FIELD-- != null) --FIELD--.--OPPOSITESETTER--(this);
+        }
+    }
+    
+%%% ManyMany.Getter
+    @FameProperty(name = "--NAME--", opposite = "--OPPOSITENAME--"--PROPS--)
+    public Collection<--TYPE--> --GETTER--() {
+        if (--FIELD-- == null) {
+            --FIELD-- = new MultivalueSet<--TYPE-->() {
+                @Override
+                protected void clearOpposite(--TYPE-- e) {
+                    e.--OPPOSITEGETTER--().remove(--THISTYPE--.this);
+                }
+                @Override
+                protected void setOpposite(--TYPE-- e) {
+                    e.--OPPOSITEGETTER--().add(--THISTYPE--.this);
+                }
+            };
+        }
+        return --FIELD--;
+    }
+    
+%%% ManyMany.Setter
+    public void --SETTER--(Collection<? extends --TYPE--> --FIELD--) {
+        this.--GETTER--().clear();
+        this.--GETTER--().addAll(--FIELD--);
+    }
+    
+%%% Many.Sugar
+    public void --ADDER--(--TYPE-- one) {
+        this.--GETTER--().add(one);
+    }   
+    
+    public void --ADDER--(--TYPE-- one, --TYPE--... many) {
+        this.--GETTER--().add(one);
+        for (--TYPE-- each : many)
+            this.--GETTER--().add(each);
+    }   
+    
+    public void --ADDER--(Iterable<? extends --TYPE--> many) {
+        for (--TYPE-- each : many)
+            this.--GETTER--().add(each);
+    }   
+                
+    public void --ADDER--(--TYPE--[] many) {
+        for (--TYPE-- each : many)
+            this.--GETTER--().add(each);
+    }
+    
+    public int --NUMOF--() {
+        return --GETTER--().size();
+    }
+
+    public boolean --HAS--() {
+        return !--GETTER--().isEmpty();
+    }
+    
+                
