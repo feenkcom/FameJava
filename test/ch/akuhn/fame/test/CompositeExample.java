@@ -189,11 +189,11 @@ public class CompositeExample {
     @Test
     @Given("model;newChildA")
     public Leaf numberPropertyA(Repository m, Leaf a) {
-        assertEquals(0, a.count);
-        assertEquals(0, m.read("count", a));
+        assertEquals((Integer) 0, (Integer) a.count);
+        assertEquals((Integer) 0, (Integer) m.read("count", a));
         m.write("count", a, 42);
         assertEquals(42, a.count);
-        assertEquals(42, m.read("count", a));
+        assertEquals((Integer)42, (Integer)m.read("count", a));
         return a;
     }
 
@@ -201,10 +201,10 @@ public class CompositeExample {
     @Given("model;newChildB")
     public Leaf numberPropertyB(Repository m, Leaf b) {
         assertEquals(0, b.count);
-        assertEquals(0, m.read("count", b));
+        assertEquals((Integer) 0, m.read("count", b));
         m.write("count", b, 23);
         assertEquals(23, b.count);
-        assertEquals(23, m.read("count", b));
+        assertEquals((Integer) 23, m.read("count", b));
         return b;
     }
 

@@ -36,7 +36,7 @@ public class Famix30Codegen {
         Importer builder = new Importer(fm3);
         builder.readFrom(input);
         Repository famix = builder.getResult();
-        CodeGeneration gen = new CodeGeneration("ch.unibe", "gen", "");
+        CodeGeneration gen = new CodeGeneration("org.moosetechnology.model", "gen", "");
         gen.accept(famix);
         puts("done");
     }
