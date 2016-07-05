@@ -160,36 +160,36 @@ public class CodeGeneration {
     }
 
     private Void acceptDerivedProperty(PropertyDescription m) {
-        assert m.isDerived() && !m.hasOpposite();
-        code.addImport(FameProperty.class);
-        String typeName = "Object";
-        if (m.getType() != null) { // TODO should not have null type
-            typeName = className(m.getType());
-            code.addImport(this.packageName(m.getType().getPackage()), typeName);
-        }
-        if (m.isMultivalued()) {
-            code.addImport("java.util", "*");
-        }
-        String myName = CodeGeneration.asJavaSafeName(m.getName());
-
-        String base = m.isMultivalued() ? "Many" : "One";
-        Template getter = Template.get(base + ".Derived.Getter");
-
-        getter.set("TYPE", typeName);
-        getter.set("NAME", m.getName());
-        getter.set("GETTER", "get" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
-
-        String props = "";
-        if (m.isDerived()) {
-            props += ", derived = true";
-        }
-        if (m.isContainer()) {
-            props += ", container = true";
-        }
-        getter.set("PROPS", props);
-
-        StringBuilder stream = code.getContentStream();
-        stream.append(getter.apply());
+//        assert m.isDerived() && !m.hasOpposite();
+//        code.addImport(FameProperty.class);
+//        String typeName = "Object";
+//        if (m.getType() != null) { // TODO should not have null type
+//            typeName = className(m.getType());
+//            code.addImport(this.packageName(m.getType().getPackage()), typeName);
+//        }
+//        if (m.isMultivalued()) {
+//            code.addImport("java.util", "*");
+//        }
+//        String myName = CodeGeneration.asJavaSafeName(m.getName());
+//
+//        String base = m.isMultivalued() ? "Many" : "One";
+//        Template getter = Template.get(base + ".Derived.Getter");
+//
+//        getter.set("TYPE", typeName);
+//        getter.set("NAME", m.getName());
+//        getter.set("GETTER", "get" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
+//
+//        String props = "";
+//        if (m.isDerived()) {
+//            props += ", derived = true";
+//        }
+//        if (m.isContainer()) {
+//            props += ", container = true";
+//        }
+//        getter.set("PROPS", props);
+//
+//        StringBuilder stream = code.getContentStream();
+//        stream.append(getter.apply());
         return null;
     }
     
