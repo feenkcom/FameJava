@@ -63,9 +63,16 @@ public class RepositoryVisitor implements Runnable {
         visitor.beginElement(meta.getFullname());
         visitor.serial(getSerialNumber(meta, each));
         // XXX there can be more than one children property per element!
-        PropertyDescription childrenProperty = childrenProperty(meta);
-        assert childrenProperty == null || !childrenProperty.isContainer() : "Children property must not be a container!";
-        for (PropertyDescription property : sortAttributes(meta.allAttributes())) {
+        Collection<PropertyDescription> childrenProperties = childrenProperties(meta);
+        for (PropertyDescription childrenProperty: childrenProperties) {
+        		assert childrenProperty == null || !childrenProperty.isContainer() : "Children property must not be a container!";
+        }
+        handleChildrenProperties(each, meta, childrenProperties);
+        visitor.endElement(meta.getFullname());
+    }
+
+	private void handleChildrenProperties(Object each, MetaDescription meta, Collection<PropertyDescription> childrenProperties) {
+		for (PropertyDescription property : sortAttributes(meta.allAttributes())) {
             Collection<?> values = property.readAll(each);
             if (property.isDerived())
                 continue;
@@ -79,7 +86,7 @@ public class RepositoryVisitor implements Runnable {
                 visitor.beginAttribute(property.getName());
                 boolean isPrimitive = property.getType().isPrimitive();
                 boolean isRoot = property.getType().isRoot();
-                boolean isComposite = (property == childrenProperty);
+                boolean isComposite = (childrenProperties.contains(property));
                 for (Object value : values) {
                     if (value instanceof MetaDescription) {
                         MetaDescription m = (MetaDescription) value;
@@ -106,8 +113,7 @@ public class RepositoryVisitor implements Runnable {
                 visitor.endAttribute(property.getName());
             }
         }
-        visitor.endElement(meta.getFullname());
-    }
+	}
     
     /**
      * @param an element which was found by browsing the object-graph, but which
@@ -152,6 +158,22 @@ public class RepositoryVisitor implements Runnable {
         visitor.endDocument();
     }
 
+    private Collection<PropertyDescription> childrenProperties(MetaDescription meta) {
+		Select<PropertyDescription> query = Select.from(meta.allAttributes());
+		for (Select<PropertyDescription> each : query) {
+			if (each.element.isComposite() == false) {
+				continue;
+			}
+			each.yield = true;
+		};
+        return query.result();
+//        return Blocks.detect(meta.getAttributes(), new Predicate<PropertyDescription>() {
+//            public boolean apply(PropertyDescription each) {
+//                return each.isComposite();
+//            }
+//        });
+    }
+    
     private PropertyDescription childrenProperty(MetaDescription meta) {
         Detect<PropertyDescription> query = Detect.from(meta.allAttributes());
         for (Detect<PropertyDescription> each: query) {
