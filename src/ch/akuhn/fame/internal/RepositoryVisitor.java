@@ -153,7 +153,7 @@ public class RepositoryVisitor implements Runnable {
     }
 
     private PropertyDescription childrenProperty(MetaDescription meta) {
-        Detect<PropertyDescription> query = Detect.from(meta.getAttributes());
+        Detect<PropertyDescription> query = Detect.from(meta.allAttributes());
         for (Detect<PropertyDescription> each: query) {
             each.yield = each.element.isComposite();
         }
