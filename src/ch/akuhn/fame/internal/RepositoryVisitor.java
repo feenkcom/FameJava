@@ -63,21 +63,21 @@ public class RepositoryVisitor implements Runnable {
         visitor.beginElement(meta.getFullname());
         visitor.serial(getSerialNumber(meta, each));
         // XXX there can be more than one children property per element!
-        Collection<PropertyDescription> childrenProperties = childrenProperties(meta);
-        for (PropertyDescription childrenProperty: childrenProperties) {
-        		assert childrenProperty == null || !childrenProperty.isContainer() : "Children property must not be a container!";
-        }
-        handleChildrenProperties(each, meta, childrenProperties);
+//        Collection<PropertyDescription> childrenProperties = childrenProperties(meta);
+//        for (PropertyDescription childrenProperty: childrenProperties) {
+//        		assert childrenProperty == null || !childrenProperty.isContainer() : "Children property must not be a container!";
+//        }
+        handleChildrenProperties(each, meta);
         visitor.endElement(meta.getFullname());
     }
 
-	private void handleChildrenProperties(Object each, MetaDescription meta, Collection<PropertyDescription> childrenProperties) {
+	private void handleChildrenProperties(Object each, MetaDescription meta /**, Collection<PropertyDescription> childrenProperties*/) {
 		for (PropertyDescription property : sortAttributes(meta.allAttributes())) {
             Collection<?> values = property.readAll(each);
             if (property.isDerived())
                 continue;
-            if (property.isContainer())
-                continue;
+//            if (property.isContainer())
+//                continue;
             if (property.getType() == MetaDescription.BOOLEAN && !property.isMultivalued() && !values.isEmpty()) {
                 if (!(Boolean) values.iterator().next())
                     continue;
@@ -86,7 +86,7 @@ public class RepositoryVisitor implements Runnable {
                 visitor.beginAttribute(property.getName());
                 boolean isPrimitive = property.getType().isPrimitive();
                 boolean isRoot = property.getType().isRoot();
-                boolean isComposite = (childrenProperties.contains(property));
+//                boolean isComposite = (childrenProperties.contains(property));
                 for (Object value : values) {
                     if (value instanceof MetaDescription) {
                         MetaDescription m = (MetaDescription) value;
@@ -101,13 +101,13 @@ public class RepositoryVisitor implements Runnable {
                             value instanceof Number))) {
                         visitor.primitive(value);
                     } else {
-                        if (isComposite) {
-                            this.acceptElement(value);
-                        } else {
+//                        if (isComposite) {
+//                            this.acceptElement(value);
+//                        } else {
                             Integer serial = getSerialNumber(property, value);
                             assert serial != null;
                             visitor.reference(serial);
-                        }
+//                        }
                     }
                 }
                 visitor.endAttribute(property.getName());
@@ -150,7 +150,8 @@ public class RepositoryVisitor implements Runnable {
 
     private void acceptVisitor() {
         visitor.beginDocument();
-        Collection<Object> elements = rootElements(repo);
+        // We export all elements from the repository, not just the root ones.
+        Collection<Object> elements = repo.getElements(); //rootElements(repo);
         elements = removeBuiltinMetaDescriptions(elements);
         for (Object each : elements) {
             this.acceptElement(each);
