@@ -104,7 +104,7 @@ public class PropertyFactory {
         String oppositeName = this.oppositeName();
         if (oppositeName == null)
             return;
-        PropertyDescription opposite = instance.getType().attributeNamed(oppositeName);
+        PropertyDescription opposite = instance.getType().propertyNamed(oppositeName);
         assert opposite != null : "Opposite not found: " + oppositeName + " in " + instance.getType();
         instance.setOpposite(opposite);
     }

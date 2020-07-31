@@ -54,7 +54,7 @@ public class PackageDescription extends Element {
 
     public static final String NAME = "FM3.Package";
 
-    private Collection<MetaDescription> elements;
+    private Collection<FM3Type> elements;
 
     private Collection<PropertyDescription> extensions;
 
@@ -69,7 +69,7 @@ public class PackageDescription extends Element {
         this.extensions = new HashSet();
     }
 
-    public void addElement(MetaDescription instance) {
+    public void addElement(FM3Type instance) {
         if (elements.add(instance)) {
             instance.setPackage(this);
         }
@@ -81,7 +81,7 @@ public class PackageDescription extends Element {
     }
 
     @FameProperty(opposite = "package")
-    public Collection<MetaDescription> getClasses() {
+    public Collection<FM3Type> getClasses() {
         return elements;
     }
 
@@ -95,10 +95,10 @@ public class PackageDescription extends Element {
         return null;
     }
 
-    public void setClasses(Collection<MetaDescription> classes) {
+    public void setClasses(Collection<FM3Type> classes) {
         // this.elements = new HashSet(); TODO think about nice handling of
         // multivalued properties with opposite
-        for (MetaDescription each : classes) {
+        for (FM3Type each : classes) {
             this.addElement(each);
         }
     }

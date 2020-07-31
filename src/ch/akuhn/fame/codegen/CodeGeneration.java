@@ -25,15 +25,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import ch.akuhn.fame.FameDescription;
 import ch.akuhn.fame.FamePackage;
 import ch.akuhn.fame.FameProperty;
 import ch.akuhn.fame.MetaRepository;
 import ch.akuhn.fame.Repository;
-import ch.akuhn.fame.fm3.MetaDescription;
-import ch.akuhn.fame.fm3.PackageDescription;
-import ch.akuhn.fame.fm3.PropertyDescription;
+import ch.akuhn.fame.fm3.*;
 import ch.akuhn.fame.internal.MultivalueSet;
 
 public class CodeGeneration {
@@ -53,7 +52,7 @@ public class CodeGeneration {
     private String destinationPackage = "com.example";
     private String outputDirectory = "gen";
     private String classNamePrefix = "";
-    private JavaFile code;
+    private GenFile code;
     private File folder;
 
     public CodeGeneration() {
@@ -137,10 +136,11 @@ public class CodeGeneration {
         }
         getter.set("PROPS", props);
 
-        StringBuilder stream = code.getContentStream();
-        stream.append(field.apply());
-        stream.append(getter.apply());
-        stream.append(setter.apply());
+        StringBuilder fieldsStream = code.getFieldsContentStream();
+        StringBuilder bodyStream = code.getContentStream();
+        fieldsStream.append(field.apply());
+        bodyStream.append(getter.apply());
+        bodyStream.append(setter.apply());
 
         // adder for multivalued properties
 
@@ -154,7 +154,7 @@ public class CodeGeneration {
         adder.set("ADDER", "add" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
         adder.set("NUMOF", "numberOf" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
         adder.set("HAS", "has" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
-        stream.append(adder.apply());
+        bodyStream.append(adder.apply());
         return null;
 
     }
@@ -199,6 +199,7 @@ public class CodeGeneration {
         code = new JavaFile(this.packageName(m.getPackage()), className(m));
         code.setModelPackagename(m.getPackage().getFullname());
         code.setModelClassname(m.getName());
+        code.setTraits(m.getTraits().stream().map(FM3Type::getName).collect(Collectors.toList()));
         code.addImport(FameDescription.class);
         code.addImport(FamePackage.class);
 
@@ -206,7 +207,23 @@ public class CodeGeneration {
             code.addSuperclass(this.packageName(m.getSuperclass().getPackage()), className(m.getSuperclass()));
         }
 
-        for (PropertyDescription property : m.getAttributes()) {
+        for (PropertyDescription property : m.getProperties()) {
+            this.acceptProperty(property);
+        }
+        File file = new File(folder, className(m) + ".java");
+        FileWriter stream = new FileWriter(file);
+        code.generateCode(stream);
+        stream.close();
+    }
+
+    private void acceptTrait(FM3Trait m) throws IOException {
+        code = new InterfaceFile(this.packageName(m.getPackage()), className(m));
+        code.setModelPackagename(m.getPackage().getFullname());
+        code.setModelClassname(m.getName());
+        code.setTraits(m.getTraits().stream().map(FM3Type::getName).collect(Collectors.toList()));
+        code.addImport(FameDescription.class);
+        code.addImport(FamePackage.class);
+        for (PropertyDescription property : m.getProperties()) {
             this.acceptProperty(property);
         }
         File file = new File(folder, className(m) + ".java");
@@ -220,8 +237,12 @@ public class CodeGeneration {
         if (!folder.exists())
             folder.mkdirs();
 
-        for (MetaDescription meta : m.getClasses()) {
-            this.acceptClass(meta);
+        for (FM3Type meta : m.getClasses()) {
+            if (meta instanceof MetaDescription) {
+                this.acceptClass((MetaDescription)meta);
+            } else if (meta instanceof FM3Trait) {
+                this.acceptTrait((FM3Trait)meta);
+            }
         }
 
         String name = toUpperFirstChar(m.getName()) + "Model";
@@ -232,7 +253,7 @@ public class CodeGeneration {
         template.set("AUTOGENCODE", "Automagically generated code");
 
         StringBuilder builder = new StringBuilder();
-        for (MetaDescription meta : m.getClasses()) {
+        for (FM3Type meta : m.getClasses()) {
             builder.append("\t\tmetamodel.with(");
             builder.append(packageName);
             builder.append('.');
@@ -254,7 +275,7 @@ public class CodeGeneration {
         return acceptAccessorProperty(m);
     }
 
-    private String className(MetaDescription meta) {
+    private String className(FM3Type meta) {
         if (meta.isPrimitive() || meta.isRoot())
             return meta.getName();
         return mapClassName(meta.getName());

@@ -42,8 +42,8 @@ public class MetaDescriptionTest {
         t.getMetamodel().importMSE(str);
         MetaRepository repo = t.getMetamodel();
         MetaDescription sub = repo.descriptionNamed("World.Sub");
-        assertEquals(1, sub.allAttributes().size());
-        assertSame(sub.getAttributes().iterator().next(), sub.allAttributes()
+        assertEquals(1, sub.allProperties().size());
+        assertSame(sub.getProperties().iterator().next(), sub.allProperties()
                 .iterator().next());
     }
 

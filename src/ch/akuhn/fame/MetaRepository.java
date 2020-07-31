@@ -53,6 +53,8 @@ public class MetaRepository extends Repository {
         mse.with(ch.akuhn.fame.fm3.Element.class);
         mse.with(ch.akuhn.fame.fm3.PackageDescription.class);
         mse.with(ch.akuhn.fame.fm3.PropertyDescription.class);
+        mse.with(ch.akuhn.fame.fm3.FM3Trait.class);
+        mse.with(ch.akuhn.fame.fm3.FM3Type.class);
         mse.addAll(new ArrayList(mse.bindings.values()));
         mse.setImmutable();
         return mse;

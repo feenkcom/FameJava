@@ -35,7 +35,7 @@ import ch.akuhn.fame.internal.Warnings;
 /**
  * Holds meta-information of classes.
  * <p>
- * This subclasses NamedElement with attributes
+ * This subclasses NamedElement with properties
  * </p>
  * <ul>
  * <li>Boolean <code>abstract</code></li>
@@ -43,8 +43,8 @@ import ch.akuhn.fame.internal.Warnings;
  * <li>Boolean <code>root</code> (derived)</li>
  * <li>Class <code>superclass</code></li>
  * <li>Package <code>package</code> (container, opposite Package.classes)</li>
- * <li>Property <code>allAttributes</code> (derived, multivalued)</li>
- * <li>Property <code>attributes</code> (multivalued, opposite Property.class)</li>
+ * <li>Property <code>allProperties</code> (derived, multivalued)</li>
+ * <li>Property <code>properties</code> (multivalued, opposite Property.class)</li>
  * </ul>
  * <p>
  * with these reserved instances
@@ -66,13 +66,13 @@ import ch.akuhn.fame.internal.Warnings;
  * <li> <code>superclass</code> must not be a primitive</li>
  * <li> <code>superclass</code> chain may not include cycles</li>
  * <li> <code>package</code> must not be nil</li>
- * <li> <code>allAttributes</code> is derived as union of <code>attributes</code>
- * and <code>superclass.allAttributes</code></li>
- * <li>only one of <code>allAttributes</code> may have
+ * <li> <code>allProperties</code> is derived as union of <code>properties</code>
+ * and <code>superclass.allProperties</code></li>
+ * <li>only one of <code>allProperties</code> may have
  * <code>container = true</code></li>
- * <li> <code>allAttributes</code> must have unique names</li>
- * <li>in particular, none of <code>attributes</code> may have the name of any
- * of <code>superclass.allAttributes</code></li>
+ * <li> <code>allProperties</code> must have unique names</li>
+ * <li>in particular, none of <code>properties</code> may have the name of any
+ * of <code>superclass.allProperties</code></li>
  * </ul>
  * 
  * @author Adrian Kuhn
@@ -80,7 +80,7 @@ import ch.akuhn.fame.internal.Warnings;
  */
 @FamePackage("FM3")
 @FameDescription("Class")
-public class MetaDescription extends Element {
+public class MetaDescription extends FM3Type {
 
     public static final MetaDescription BOOLEAN = new MetaDescription("Boolean");
     public static final MetaDescription NUMBER = new MetaDescription("Number");
@@ -106,90 +106,40 @@ public class MetaDescription extends Element {
         return null;
     }
 
-    private Map<String, PropertyDescription> attributes;
-
     private Class<?> baseClass;
 
     private boolean isAbstract;
-
-    private PackageDescription nestingPackage;
 
     private MetaDescription superclass;
 
     public MetaDescription() {
         super();
-        this.attributes = new HashMap<String, PropertyDescription>();
     }
 
     public MetaDescription(String name) {
         super(name);
-        this.attributes = new HashMap<String, PropertyDescription>();
     }
 
-    public void addOwnedAttribute(PropertyDescription property) {
-        attributes.put(property.getName(), property);
-        if (property.getOwningMetaDescription() != this) {
-            property.setOwningMetaDescription(this);
-        }
-    }
-
-    @FameProperty(name = "allAttributes", derived = true)
-    public Collection<PropertyDescription> allAttributes() {
+    @FameProperty(name = "allProperties", derived = true)
+    public Collection<PropertyDescription> allProperties() {
         Map<String, PropertyDescription> all = new HashMap();
-        this.collectAllAttributes(all);
+        this.collectAllProperties(all);
         return all.values();
     }
 
     public PropertyDescription attributeNamed(String name) {
-        PropertyDescription property = attributes.get(name);
+        PropertyDescription property = properties.get(name);
         if (property == null && superclass != null) {
             property = superclass.attributeNamed(name);
         }
         return property;
     }
 
-    public void checkConstraints(Warnings warnings) {
-        int container = 0;
-        for (PropertyDescription property : allAttributes()) {
-            if (property.isContainer())
-                container++;
-        }
-        if (container > 1) {
-            warnings.add("May not have more than one container", this);
-        }
-        if (!MetaRepository.isValidName(getName())) {
-            warnings.add("Name must be alphanumeric", this);
-        }
-        if (this != OBJECT && this != STRING && this != BOOLEAN && this != DATE && this != NUMBER) {
-            if (nestingPackage == null) {
-                warnings.add("Must be owned by a package", this);
-            }
-            if (superclass == null) {
-                warnings.add("Must have a superclass", this);
-            }
-            if (superclass == STRING && superclass == BOOLEAN && superclass == NUMBER) {
-                warnings.add("May not have primitive superclass", this);
-            }
-        } else {
-            assert nestingPackage == null;
-            assert superclass == null;
-            assert attributes.isEmpty();
-        }
-        Set<MetaDescription> set = new HashSet<MetaDescription>();
-        set.add(this);
-        for (MetaDescription each = this; each == null; each = each.superclass) {
-            if (!set.add(each)) {
-                warnings.add("Superclass chain may not be circular", this);
-                break;
-            }
-        }
-    }
-
-    private void collectAllAttributes(Map<String, PropertyDescription> all) {
+    private void collectAllProperties(Map<String, PropertyDescription> all) {
         // superclass first, to ensure correct shadowing
         if (superclass != null)
-            superclass.collectAllAttributes(all);
-        all.putAll(attributes);
+            superclass.collectAllProperties(all);
+        all.putAll(properties);
     }
 
     /**
@@ -204,30 +154,15 @@ public class MetaDescription extends Element {
     }
 
     public PropertyDescription containerPropertyOrNull() {
-        for (PropertyDescription property : allAttributes()) {
+        for (PropertyDescription property : allProperties()) {
             if (property.isContainer())
                 return property;
         }
         return null;
     }
 
-    @FameProperty(opposite = "class")
-    public Collection<PropertyDescription> getAttributes() {
-        return attributes.values();
-    }
-
     public Class getBaseClass() {
         return baseClass;
-    }
-
-    @Override
-    public PackageDescription getOwner() {
-        return this.getPackage();
-    }
-
-    @FameProperty(opposite = "classes", container = true)
-    public PackageDescription getPackage() {
-        return nestingPackage;
     }
 
     @FameProperty
@@ -280,20 +215,10 @@ public class MetaDescription extends Element {
         this.isAbstract = isAbstract;
     }
 
-    public void setAttributes(Collection<PropertyDescription> attributes) {
-        this.attributes = new HashMap<String, PropertyDescription>();
-        for (PropertyDescription property : attributes) {
-            this.addOwnedAttribute(property);
-        }
-    }
+
 
     public void setBaseClass(Class baseClass) {
         this.baseClass = baseClass;
-    }
-
-    public void setPackage(PackageDescription owner) {
-        this.nestingPackage = owner;
-        owner.addElement(this);
     }
 
     public void setSuperclass(MetaDescription superclass) {

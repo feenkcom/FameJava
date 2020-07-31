@@ -76,7 +76,7 @@ public class MetaDescriptionFactory {
     private void createPropertyInstances() {
         for (PropertyFactory factory : childFactories) {
             PropertyDescription property = factory.createInstance();
-            instance.addOwnedAttribute(property);
+            instance.addOwnedProperty(property);
             property.setOwningMetaDescription(instance);
         }
     }

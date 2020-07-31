@@ -119,7 +119,7 @@ public class PropertyDescription extends Element {
 
     }
 
-    private MetaDescription declaringClass;
+    private FM3Type declaringClass;
 
     private PackageDescription extendingPackage;
 
@@ -135,7 +135,7 @@ public class PropertyDescription extends Element {
 
     // private Method setter;
 
-    private MetaDescription type;
+    private FM3Type type;
 
     private Access access;
 
@@ -182,12 +182,12 @@ public class PropertyDescription extends Element {
     }
 
     @Override
-    public MetaDescription getOwner() {
+    public FM3Type getOwner() {
         return this.getOwningMetaDescription();
     }
 
-    @FameProperty(name = "class", opposite = "attributes", container = true)
-    public MetaDescription getOwningMetaDescription() {
+    @FameProperty(name = "class", opposite = "properties", container = true)
+    public FM3Type getOwningMetaDescription() {
         return declaringClass;
     }
 
@@ -196,7 +196,7 @@ public class PropertyDescription extends Element {
     }
 
     @FameProperty
-    public MetaDescription getType() {
+    public FM3Type getType() {
         return type;
     }
 
@@ -314,16 +314,16 @@ public class PropertyDescription extends Element {
         this.opposite = opposite;
     }
 
-    public void setOwningMetaDescription(MetaDescription owner) {
+    public void setOwningMetaDescription(FM3Type owner) {
         this.declaringClass = owner;
-        owner.addOwnedAttribute(this);
+        owner.addOwnedProperty(this);
     }
 
     public void setSetter(Method method) {
         throw new AssertionError();
     }
 
-    public void setType(MetaDescription type) {
+    public void setType(FM3Type type) {
         this.type = type;
     }
 

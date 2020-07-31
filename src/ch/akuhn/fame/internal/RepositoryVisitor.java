@@ -72,7 +72,7 @@ public class RepositoryVisitor implements Runnable {
     }
 
 	private void handleChildrenProperties(Object each, MetaDescription meta /**, Collection<PropertyDescription> childrenProperties*/) {
-		for (PropertyDescription property : sortAttributes(meta.allAttributes())) {
+		for (PropertyDescription property : sortAttributes(meta.allProperties())) {
             Collection<?> values = property.readAll(each);
             if (property.isDerived())
                 continue;
@@ -160,7 +160,7 @@ public class RepositoryVisitor implements Runnable {
     }
 
     private Collection<PropertyDescription> childrenProperties(MetaDescription meta) {
-		Select<PropertyDescription> query = Select.from(meta.allAttributes());
+		Select<PropertyDescription> query = Select.from(meta.allProperties());
 		for (Select<PropertyDescription> each : query) {
 			if (each.element.isComposite() == false) {
 				continue;
@@ -176,7 +176,7 @@ public class RepositoryVisitor implements Runnable {
     }
     
     private PropertyDescription childrenProperty(MetaDescription meta) {
-        Detect<PropertyDescription> query = Detect.from(meta.allAttributes());
+        Detect<PropertyDescription> query = Detect.from(meta.allProperties());
         for (Detect<PropertyDescription> each: query) {
             each.yield = each.element.isComposite();
         }

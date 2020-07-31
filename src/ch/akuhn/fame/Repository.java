@@ -118,7 +118,7 @@ public class Repository {
         if (elements.add(element)) {
             MetaDescription meta = metamodel.getDescription(element.getClass());
             assert meta != null : element.getClass();
-            for (PropertyDescription property : meta.allAttributes()) {
+            for (PropertyDescription property : meta.allProperties()) {
                 if (!property.isPrimitive()) {
                     boolean isRoot = property.getType().isRoot();
                     for (Object value : property.readAll(element)) {

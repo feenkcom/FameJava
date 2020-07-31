@@ -29,11 +29,31 @@ package --PACKAGE--;
 
 @FamePackage("--THISPACKAGE--")
 @FameDescription("--THISNAME--")
-public class --THISTYPE-- --EXTENDS-- {
+public class --THISTYPE-- --EXTENDS-- --IMPLEMENTS-- {
 
 --FIELDS--
 
 --METHODS--
+
+}
+
+%%% Interface
+// --AUTOGENCODE--, please do not change
+package --PACKAGE--;
+
+--IMPORTS--
+
+@FamePackage("--THISPACKAGE--")
+@FameDescription("--THISNAME--")
+public interface --THISTYPE-- --IMPLEMENTS-- {
+
+    class Storage
+    {
+        --FIELDS--
+
+    }
+
+    --METHODS--
 
 }
 

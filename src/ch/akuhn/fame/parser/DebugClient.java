@@ -20,7 +20,7 @@ public class DebugClient implements ParseClient {
     }
 
     public void beginAttribute(String name) {
-        log.add(new Object[] { "beginAttribute", name });
+        log.add(new Object[] { "beginProperty", name });
         if (client != null) client.beginAttribute(name);
     }
 
@@ -39,7 +39,7 @@ public class DebugClient implements ParseClient {
     }
 
     public void endAttribute(String name) {
-        log.add(new Object[] { "endAttribute", name });
+        log.add(new Object[] { "endProperty", name });
         if (client != null) client.endAttribute(name);
     }
 

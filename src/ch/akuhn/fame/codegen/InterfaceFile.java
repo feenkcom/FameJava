@@ -22,26 +22,24 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 
-public class JavaFile extends GenFile {
+public class InterfaceFile extends GenFile {
 
-    public JavaFile(String myPackage, String name) {
+    public InterfaceFile(String myPackage, String name) {
         super(myPackage, name);
     }
 
     public void generateCode(Appendable stream) throws IOException {
-        Template template = Template.get("Class");
+        Template template = Template.get("Interface");
         template.set("PACKAGE", myPackage);
         template.set("AUTOGENCODE", "Automagically generated code");
         template.set("THISTYPE", name);
         template.set("THISPACKAGE", modelPackagename);
         template.set("THISNAME", modelClassname);
         template
-                .set("EXTENDS", superName == null ? "" : "extends " + superName);
+                .set("IMPLEMENTS", superName == null ? "" : "extends " + superName);
         template.set("IMPORTS", getImports());
-        template.set("IMPLEMENTS", getTraits());
         template.set("FIELDS", getFieldsContentStream().toString());
         template.set("METHODS", getContentStream().toString());
         stream.append(template.apply());
     }
-
 }

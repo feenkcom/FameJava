@@ -80,7 +80,7 @@ public class MetamodelBuilder {
                     client.beginAttribute("name");
                     client.primitive(this.className = name);
                     client.endAttribute("name");
-                    client.beginAttribute("attributes");
+                    client.beginAttribute("properties");
                 }
 
                 private Class with(String name, String type, String opposite, boolean multivalued) {
@@ -130,7 +130,7 @@ public class MetamodelBuilder {
                 }
 
                 public Package endClass() {
-                    client.endAttribute("attributes");
+                    client.endAttribute("properties");
                     client.endElement("FM3.Class");
                     return PackageImpl.this;
                 }
