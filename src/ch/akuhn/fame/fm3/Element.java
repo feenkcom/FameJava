@@ -25,6 +25,8 @@ import ch.akuhn.fame.Named;
 import ch.akuhn.fame.Nested;
 import ch.akuhn.fame.internal.Warnings;
 
+import java.util.Collection;
+
 /**
  * Abstract superclass of MSE metamodel.
  * 

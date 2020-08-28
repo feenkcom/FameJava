@@ -25,6 +25,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import ch.akuhn.fame.FameDescription;
@@ -88,7 +90,9 @@ public class CodeGeneration {
         }
     }
 
-    private Void acceptAccessorProperty(PropertyDescription m) {
+    // Properties for classes
+
+    private Void acceptAccessorProperty(PropertyDescription m, MetaDescription owner) {
         code.addImport(FameProperty.class);
         String typeName = "Object";
         if (m.getType() != null) { // TODO should not have null type
@@ -112,7 +116,7 @@ public class CodeGeneration {
         Template setter = Template.get(base + ".Setter");
 
         field.set("TYPE", typeName);
-        field.set("THISTYPE", CodeGeneration.asJavaSafeName(className(m.getOwningMetaDescription())));
+        field.set("THISTYPE", CodeGeneration.asJavaSafeName(className(owner)));
         field.set("FIELD", myName);
         field.set("NAME", m.getName());
         field.set("GETTER", "get" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
@@ -159,38 +163,145 @@ public class CodeGeneration {
 
     }
 
-    private Void acceptDerivedProperty(PropertyDescription m) {
-//        assert m.isDerived() && !m.hasOpposite();
-//        code.addImport(FameProperty.class);
-//        String typeName = "Object";
-//        if (m.getType() != null) { // TODO should not have null type
-//            typeName = className(m.getType());
-//            code.addImport(this.packageName(m.getType().getPackage()), typeName);
-//        }
-//        if (m.isMultivalued()) {
-//            code.addImport("java.util", "*");
-//        }
-//        String myName = CodeGeneration.asJavaSafeName(m.getName());
-//
-//        String base = m.isMultivalued() ? "Many" : "One";
-//        Template getter = Template.get(base + ".Derived.Getter");
-//
-//        getter.set("TYPE", typeName);
-//        getter.set("NAME", m.getName());
-//        getter.set("GETTER", "get" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
-//
-//        String props = "";
-//        if (m.isDerived()) {
-//            props += ", derived = true";
-//        }
-//        if (m.isContainer()) {
-//            props += ", container = true";
-//        }
-//        getter.set("PROPS", props);
-//
-//        StringBuilder stream = code.getContentStream();
-//        stream.append(getter.apply());
+    private Void acceptDerivedProperty(PropertyDescription m, MetaDescription owner) {
+        assert m.isDerived() && !m.hasOpposite();
+        code.addImport(FameProperty.class);
+        String typeName = "Object";
+        if (m.getType() != null) { // TODO should not have null type
+            typeName = className(m.getType());
+            code.addImport(this.packageName(m.getType().getPackage()), typeName);
+        }
+        if (m.isMultivalued()) {
+            code.addImport("java.util", "*");
+        }
+        String myName = CodeGeneration.asJavaSafeName(m.getName());
+
+        String base = m.isMultivalued() ? "Many" : "One";
+        Template getter = Template.get(base + ".Derived.Getter");
+
+        getter.set("TYPE", typeName);
+        getter.set("NAME", m.getName());
+        getter.set("GETTER", "get" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
+
+        String props = "";
+        if (m.isDerived()) {
+            props += ", derived = true";
+        }
+        if (m.isContainer()) {
+            props += ", container = true";
+        }
+        getter.set("PROPS", props);
+
+        StringBuilder stream = code.getContentStream();
+        stream.append(getter.apply());
         return null;
+    }
+
+    // Properties for Traits
+
+    private Void acceptDerivedPropertyTrait(PropertyDescription m) {
+        assert m.isDerived() && !m.hasOpposite();
+        code.addImport(FameProperty.class);
+        String typeName = "Object";
+        if (m.getType() != null) { // TODO should not have null type
+            typeName = className(m.getType());
+            code.addImport(this.packageName(m.getType().getPackage()), typeName);
+        }
+        if (m.isMultivalued()) {
+            code.addImport("java.util", "*");
+        }
+        String myName = CodeGeneration.asJavaSafeName(m.getName());
+
+        String base = "Trait." + (m.isMultivalued() ? "Many" : "One");
+        Template getter = Template.get(base + ".Derived.Getter");
+
+        getter.set("TYPE", typeName);
+        getter.set("NAME", m.getName());
+        getter.set("GETTER", "get" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
+
+        String props = "";
+        if (m.isDerived()) {
+            props += ", derived = true";
+        }
+        if (m.isContainer()) {
+            props += ", container = true";
+        }
+        getter.set("PROPS", props);
+
+        StringBuilder stream = code.getContentStream();
+        stream.append(getter.apply());
+        return null;
+    }
+
+    private Void acceptAccessorPropertyTrait(PropertyDescription m) {
+        code.addImport(FameProperty.class);
+        String typeName = "Object";
+        if (m.getType() != null) { // TODO should not have null type
+            typeName = className(m.getType());
+            code.addImport(this.packageName(m.getType().getPackage()), typeName);
+        }
+        if (m.isMultivalued()) {
+            code.addImport("java.util", "*");
+        }
+        String myName = CodeGeneration.asJavaSafeName(m.getName());
+
+        String base = "Trait." + (m.isMultivalued() ? "Many" : "One");
+        Template field = Template.get(base + ".Field");
+        if (m.getOpposite() != null) {
+            base = base + (m.getOpposite().isMultivalued() ? "Many" : "One");
+            if (base.equals("ManyOne") || base.equals("ManyMany")) {
+                code.addImport(MultivalueSet.class);
+            }
+        }
+        Template getter = Template.get(base + ".Getter");
+        Template setter = Template.get(base + ".Setter");
+
+        field.set("TYPE", typeName);
+        field.set("THISTYPE", CodeGeneration.asJavaSafeName(className(m.getOwningMetaDescription())));
+        field.set("FIELD", myName);
+        field.set("NAME", m.getName());
+        field.set("GETTER", "get" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
+        field.set("SETTER", "set" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
+        if (m.getOpposite() != null) {
+            String oppositeName = m.getOpposite().getName();
+            field.set("OPPOSITENAME", oppositeName);
+            oppositeName = CodeGeneration.asJavaSafeName(oppositeName);
+            field.set("OPPOSITESETTER", "set" + Character.toUpperCase(oppositeName.charAt(0)) + oppositeName.substring(1));
+            field.set("OPPOSITEGETTER", "get" + Character.toUpperCase(oppositeName.charAt(0)) + oppositeName.substring(1));
+        }
+        getter.setAll(field);
+        setter.setAll(field);
+
+        String props = "";
+        if (m.isDerived()) {
+            props += ", derived = true";
+        }
+        if (m.isContainer()) {
+            props += ", container = true";
+        }
+        getter.set("PROPS", props);
+
+        StringBuilder fieldsStream = code.getFieldsContentStream();
+        StringBuilder bodyStream = code.getContentStream();
+        fieldsStream.append(field.apply());
+        bodyStream.append(getter.apply());
+        bodyStream.append(setter.apply());
+
+        // adder for multivalued properties
+
+        if (!m.isMultivalued())
+            return null;
+
+        Template adder = Template.get("Trait.Many.Sugar");
+        adder.set("TYPE", typeName);
+        adder.set("FIELD", myName);
+        adder.set("GETTER", "get" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
+        adder.set("ADDER", "add" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
+        adder.set("NUMOF", "numberOf" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
+        adder.set("HAS", "has" + Character.toUpperCase(myName.charAt(0)) + myName.substring(1));
+        bodyStream.append(adder.apply());
+        return null;
+
     }
     
     private void acceptClass(MetaDescription m) throws IOException {
@@ -202,14 +313,24 @@ public class CodeGeneration {
         code.setTraits(m.getTraits().stream().map(FM3Type::getName).collect(Collectors.toList()));
         code.addImport(FameDescription.class);
         code.addImport(FamePackage.class);
+        for (FM3Trait t : m.getAllTraits()) {
+            code.addImport(packageName(t.getPackage()), t.getName());
+        }
 
         if (m.getSuperclass() != null) {
             code.addSuperclass(this.packageName(m.getSuperclass().getPackage()), className(m.getSuperclass()));
         }
-
+        // My own properties
         for (PropertyDescription property : m.getProperties()) {
-            this.acceptProperty(property);
+            this.acceptProperty(property, m);
         }
+        // Properties from my traits
+        Set<PropertyDescription> propertyDescriptionSet = new HashSet<>();
+        m.getAllTraits().stream().map( c -> c.getProperties()).forEach(propertyDescriptionSet::addAll);
+        for (PropertyDescription propertyDescription:  propertyDescriptionSet) {
+            this.acceptProperty(propertyDescription, m);
+        }
+
         File file = new File(folder, className(m) + ".java");
         FileWriter stream = new FileWriter(file);
         code.generateCode(stream);
@@ -223,9 +344,14 @@ public class CodeGeneration {
         code.setTraits(m.getTraits().stream().map(FM3Type::getName).collect(Collectors.toList()));
         code.addImport(FameDescription.class);
         code.addImport(FamePackage.class);
-        for (PropertyDescription property : m.getProperties()) {
-            this.acceptProperty(property);
+        for (FM3Trait t : m.getAllTraits()) {
+            code.addImport(packageName(t.getPackage()), t.getName());
         }
+
+        for (PropertyDescription property : m.getProperties()) {
+            this.acceptPropertyTrait(property);
+        }
+
         File file = new File(folder, className(m) + ".java");
         FileWriter stream = new FileWriter(file);
         code.generateCode(stream);
@@ -270,9 +396,14 @@ public class CodeGeneration {
         folder = null;
     }
 
-    private Void acceptProperty(PropertyDescription m) throws IOException {
-        if (m.isDerived() && !m.hasOpposite()) return acceptDerivedProperty(m);
-        return acceptAccessorProperty(m);
+    private Void acceptProperty(PropertyDescription m, MetaDescription owner) throws IOException {
+        if (m.isDerived() && !m.hasOpposite()) return acceptDerivedProperty(m, owner);
+        return acceptAccessorProperty(m, owner);
+    }
+
+    private Void acceptPropertyTrait(PropertyDescription m) throws IOException {
+        if (m.isDerived() && !m.hasOpposite()) return acceptDerivedPropertyTrait(m);
+        return acceptAccessorPropertyTrait(m);
     }
 
     private String className(FM3Type meta) {

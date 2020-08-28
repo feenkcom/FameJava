@@ -175,4 +175,13 @@ public class FM3Type extends Element {
     public boolean isRoot() {
         return true;
     }
+
+    public Set<FM3Trait> getAllTraits() {
+        Set<FM3Trait> traits = new HashSet<>();
+        traits.addAll(getTraits());
+        for (FM3Trait t : traits) {
+            traits.addAll(t.getAllTraits());
+        }
+        return traits;
+    }
 }

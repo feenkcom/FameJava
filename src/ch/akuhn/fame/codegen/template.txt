@@ -47,12 +47,6 @@ package --PACKAGE--;
 @FameDescription("--THISNAME--")
 public interface --THISTYPE-- --IMPLEMENTS-- {
 
-    class Storage
-    {
-        --FIELDS--
-
-    }
-
     --METHODS--
 
 }
@@ -215,5 +209,63 @@ import --IMPORT--;
     public boolean --HAS--() {
         return !--GETTER--().isEmpty();
     }
-    
-                
+
+%%% Trait.One.Field
+
+%%% Trait.Many.Field
+
+%%% Trait.One.Getter
+    public --TYPE-- --GETTER--();
+
+%%% Trait.One.Derived.Getter
+    public --TYPE-- --GETTER--();
+
+%%% Trait.Many.Derived.Getter
+    public Collection<--TYPE--> --GETTER--();
+
+%%% Trait.One.Setter
+    public void --SETTER--(--TYPE-- --FIELD--);
+
+%%% Trait.Many.Getter
+    public Collection<--TYPE--> --GETTER--();
+
+%%% Trait.Many.Setter
+    public void --SETTER--(Collection<? extends --TYPE--> --FIELD--);
+
+%%% Trait.ManyOne.Getter
+    public Collection<--TYPE--> --GETTER--();
+
+%%% Trait.ManyOne.Setter
+    public void --SETTER--(Collection<? extends --TYPE--> --FIELD--);
+
+%%% Trait.OneMany.Getter
+    public --TYPE-- --GETTER--();
+
+%%% Trait.OneMany.Setter
+    public void --SETTER--(--TYPE-- --FIELD--);
+
+%%% Trait.OneOne.Getter
+    public --TYPE-- --GETTER--();
+
+%%% Trait.OneOne.Setter
+    public void --SETTER--(--TYPE-- --FIELD--);
+
+%%% Trait.ManyMany.Getter
+    public Collection<--TYPE--> --GETTER--();
+
+%%% Trait.ManyMany.Setter
+    public void --SETTER--(Collection<? extends --TYPE--> --FIELD--);
+
+%%% Trait.Many.Sugar
+    public void --ADDER--(--TYPE-- one);
+
+    public void --ADDER--(--TYPE-- one, --TYPE--... many);
+
+    public void --ADDER--(Iterable<? extends --TYPE--> many);
+
+    public void --ADDER--(--TYPE--[] many);
+
+    public int --NUMOF--();
+
+    public boolean --HAS--();
+

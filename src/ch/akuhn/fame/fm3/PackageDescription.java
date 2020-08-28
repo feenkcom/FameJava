@@ -107,4 +107,8 @@ public class PackageDescription extends Element {
         this.extensions = extensions;
     }
 
+    public String getName() {
+        return super.getName().replaceAll("-", "");
+    }
+
 }
