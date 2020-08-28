@@ -78,4 +78,21 @@ import java.util.*;
 @FameDescription("Trait")
 public class FM3Trait extends FM3Type {
 
+    public FM3Trait() {
+        super();
+    }
+
+    public FM3Trait(String name) {
+        super(name);
+    }
+
+    FM3Type traitOwner;
+    @FameProperty(name = "owner", opposite = "traits")
+    public FM3Type getTraitOwner() {
+        return traitOwner;
+    }
+    public void setTraitOwner(FM3Type traitOwner){
+        this.traitOwner = traitOwner;
+    }
+
 }

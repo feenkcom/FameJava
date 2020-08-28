@@ -116,7 +116,7 @@ public class Repository {
     public void add(Object element) {
         assert element != null;
         if (elements.add(element)) {
-            MetaDescription meta = metamodel.getDescription(element.getClass());
+            MetaDescription meta = (MetaDescription) metamodel.getDescription(element.getClass());
             assert meta != null : element.getClass();
             for (PropertyDescription property : meta.allProperties()) {
                 if (!property.isPrimitive()) {
@@ -174,7 +174,7 @@ public class Repository {
     
     public MetaDescription descriptionOf(Object element) {
         try {
-            return metamodel.getDescription(element.getClass());
+            return (MetaDescription) metamodel.getDescription(element.getClass());
         } catch (ClassNotMetadescribedException e) {
             throw new ObjectNotDescribed(element);
         }

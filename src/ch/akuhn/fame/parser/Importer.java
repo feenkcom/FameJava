@@ -89,7 +89,7 @@ public class Importer extends AbstractParserClient {
                 if (openReferences > 0)
                     return;
                 Object parent = Elem.this.getElement();
-                MetaDescription meta = metamodel.getDescription(parent.getClass());
+                MetaDescription meta = (MetaDescription) metamodel.getDescription(parent.getClass());
                 PropertyDescription property = meta.attributeNamed(attributeName);
                 assert property != null : "'" + attributeName + "' in " + meta;
                 property.writeAll(parent, values);

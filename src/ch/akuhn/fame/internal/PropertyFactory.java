@@ -20,6 +20,7 @@ package ch.akuhn.fame.internal;
 
 import ch.akuhn.fame.FameProperty;
 import ch.akuhn.fame.MetaRepository;
+import ch.akuhn.fame.fm3.FM3Type;
 import ch.akuhn.fame.fm3.MetaDescription;
 import ch.akuhn.fame.fm3.PropertyDescription;
 
@@ -111,7 +112,7 @@ public class PropertyFactory {
 
     private void initializeType() {
         repository.with(this.baseType());
-        MetaDescription type = repository.getDescription(this.baseType());
+        FM3Type type = repository.getDescription(this.baseType());
         instance.setType(type);
     }
 

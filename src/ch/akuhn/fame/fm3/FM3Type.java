@@ -159,7 +159,7 @@ public class FM3Type extends Element {
         }
     }
 
-    @FameProperty(opposite = "class")
+    @FameProperty(name="traits", opposite = "owner")
     public Collection<FM3Trait> getTraits() {
         return traits.values();
     }

@@ -215,42 +215,50 @@ import --IMPORT--;
 %%% Trait.Many.Field
 
 %%% Trait.One.Getter
+    @FameProperty(name = "--NAME--"--PROPS--)
     public --TYPE-- --GETTER--();
 
 %%% Trait.One.Derived.Getter
+    @FameProperty(name = "--NAME--"--PROPS--)
     public --TYPE-- --GETTER--();
 
 %%% Trait.Many.Derived.Getter
+    @FameProperty(name = "--NAME--"--PROPS--)
     public Collection<--TYPE--> --GETTER--();
 
 %%% Trait.One.Setter
     public void --SETTER--(--TYPE-- --FIELD--);
 
 %%% Trait.Many.Getter
+    @FameProperty(name = "--NAME--"--PROPS--)
     public Collection<--TYPE--> --GETTER--();
 
 %%% Trait.Many.Setter
     public void --SETTER--(Collection<? extends --TYPE--> --FIELD--);
 
 %%% Trait.ManyOne.Getter
+    @FameProperty(name = "--NAME--", opposite = "--OPPOSITENAME--"--PROPS--)
     public Collection<--TYPE--> --GETTER--();
 
 %%% Trait.ManyOne.Setter
     public void --SETTER--(Collection<? extends --TYPE--> --FIELD--);
 
 %%% Trait.OneMany.Getter
+    @FameProperty(name = "--NAME--", opposite = "--OPPOSITENAME--"--PROPS--)
     public --TYPE-- --GETTER--();
 
 %%% Trait.OneMany.Setter
     public void --SETTER--(--TYPE-- --FIELD--);
 
 %%% Trait.OneOne.Getter
+    @FameProperty(name = "--NAME--", opposite = "--OPPOSITENAME--"--PROPS--)
     public --TYPE-- --GETTER--();
 
 %%% Trait.OneOne.Setter
     public void --SETTER--(--TYPE-- --FIELD--);
 
 %%% Trait.ManyMany.Getter
+    @FameProperty(name = "--NAME--", opposite = "--OPPOSITENAME--"--PROPS--)
     public Collection<--TYPE--> --GETTER--();
 
 %%% Trait.ManyMany.Setter

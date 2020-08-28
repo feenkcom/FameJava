@@ -27,11 +27,9 @@ import java.util.Map;
 
 import ch.akuhn.fame.dsl.MetamodelBuilder;
 import ch.akuhn.fame.dsl.ProtocolChecker;
-import ch.akuhn.fame.fm3.Element;
-import ch.akuhn.fame.fm3.MetaDescription;
-import ch.akuhn.fame.fm3.PackageDescription;
-import ch.akuhn.fame.fm3.PropertyDescription;
+import ch.akuhn.fame.fm3.*;
 import ch.akuhn.fame.internal.MetaDescriptionFactory;
+import ch.akuhn.fame.internal.TraitFactory;
 import ch.akuhn.fame.internal.Warnings;
 import ch.akuhn.fame.parser.DebugClient;
 import ch.akuhn.fame.parser.Importer;
@@ -90,6 +88,8 @@ public class MetaRepository extends Repository {
     private Map<String, Element> bindings;
 
     private Map<Class, MetaDescription> classes;
+    private Map<Class, FM3Trait> traits;
+
 
     private boolean immutable = false;
 
@@ -101,6 +101,7 @@ public class MetaRepository extends Repository {
         super(metamodel);
         classes = new HashMap();
         bindings = new HashMap();
+        traits = new HashMap();
     }
 
     @Override
@@ -169,8 +170,8 @@ public class MetaRepository extends Repository {
      * @param jclass a causally connected Java-class.
      * @return a causally connected Fame-class.
      */
-    public MetaDescription getDescription(Class jclass) {
-        MetaDescription $ = lookupPrimitive(jclass);
+    public FM3Type getDescription(Class jclass) {
+        FM3Type $ = lookupPrimitive(jclass);
         if ($ != null) return $;
         for (Class curr = jclass; curr != null; curr = curr.getSuperclass()) {
             $ = lookupClass(curr);
@@ -193,12 +194,16 @@ public class MetaRepository extends Repository {
         return getMetamodel() == this;
     }
 
-    private MetaDescription lookupClass(Class jclass) {
-        return classes.get(jclass);
+    private FM3Type lookupClass(Class jclass) {
+        if  (jclass.isInterface()){
+            return traits.get(jclass);
+        } else {
+            return classes.get(jclass);
+        }
     }
 
-    private MetaDescription lookupFull(Class jclass) {
-        MetaDescription $ = lookupPrimitive(jclass);
+    private FM3Type lookupFull(Class jclass) {
+        FM3Type $ = lookupPrimitive(jclass);
         if ($ == null) $ = lookupClass(jclass);
         return $;
     }
@@ -232,17 +237,30 @@ public class MetaRepository extends Repository {
      * @param jclass an annotated Java-class
      */
     public void with(Class jclass) {
-        MetaDescription $ = this.lookupFull(jclass);
+        FM3Type $ = this.lookupFull(jclass);
         if ($ == null) {
-            MetaDescriptionFactory factory = new MetaDescriptionFactory(jclass, this);
-            if (factory.isAnnotationPresent()) {
-                $ = factory.createInstance();
-                this.classes.put(jclass, $);
-                factory.initializeInstance();
-                this.bindings.put($.getFullname(), $);
-            }
-            if (!this.isSelfDescribed()) { // TODO explain? breaks meta-loop!
-                this.add($);
+            if(jclass.isInterface()) {
+                TraitFactory factory = new TraitFactory(jclass, this);
+                if (factory.isAnnotationPresent()) {
+                    $ = factory.createInstance();
+                    this.traits.put(jclass, (FM3Trait) $);
+                    factory.initializeInstance();
+                    this.bindings.put($.getFullname(), $);
+                }
+                if (!this.isSelfDescribed()) { // TODO explain? breaks meta-loop!
+                    this.add($);
+                }
+            } else {
+                MetaDescriptionFactory factory = new MetaDescriptionFactory(jclass, this);
+                if (factory.isAnnotationPresent()) {
+                    $ = factory.createInstance();
+                    this.classes.put(jclass, (MetaDescription) $);
+                    factory.initializeInstance();
+                    this.bindings.put($.getFullname(), $);
+                }
+                if (!this.isSelfDescribed()) { // TODO explain? breaks meta-loop!
+                    this.add($);
+                }
             }
         }
         assert $ != null : jclass;

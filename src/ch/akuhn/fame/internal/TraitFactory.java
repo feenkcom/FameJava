@@ -1,28 +1,4 @@
-//  Copyright (c) 2007-2008 Adrian Kuhn <akuhn(a)iam.unibe.ch>
-//  
-//  This file is part of 'Fame (for Java)'.
-//  
-//  'Fame (for Java)' is free software: you can redistribute it and/or modify
-//  it under the terms of the GNU Lesser General Public License as published by
-//  the Free Software Foundation, either version 3 of the License, or (at your
-//  option) any later version.
-//  
-//  'Fame (for Java)' is distributed in the hope that it will be useful, but
-//  WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
-//  or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public
-//  License for more details.
-//  
-//  You should have received a copy of the GNU Lesser General Public License
-//  along with 'Fame (for Java)'. If not, see <http://www.gnu.org/licenses/>.
-//  
-
 package ch.akuhn.fame.internal;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
 
 import ch.akuhn.fame.FameDescription;
 import ch.akuhn.fame.FamePackage;
@@ -30,30 +6,29 @@ import ch.akuhn.fame.FameProperty;
 import ch.akuhn.fame.MetaRepository;
 import ch.akuhn.fame.fm3.*;
 
-/**
- * Creates metamodel element for {@link FameDescription} annotated class.
- * 
- * @author akuhn
- * 
- */
-@SuppressWarnings("unchecked")
-public class MetaDescriptionFactory {
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.Collection;
+
+public class TraitFactory {
 
     private Class base;
     private Collection<PropertyFactory> childFactories;
-    protected MetaDescription instance;
+    protected FM3Trait instance;
     private MetaRepository repository;
 
-    public MetaDescriptionFactory(Class base, MetaRepository repository) {
+    public TraitFactory(Class base, MetaRepository repository) {
         this.base = base;
         this.repository = repository;
         this.childFactories = new ArrayList<PropertyFactory>();
     }
 
-    public MetaDescription createInstance() {
+    public FM3Trait createInstance() {
         assert this.isAnnotationPresent();
-        instance = new MetaDescription(this.name());
-        return (MetaDescription) instance;
+        instance = new FM3Trait(this.name());
+        return instance;
     }
 
     protected void createPropertyFactories() {
@@ -83,25 +58,15 @@ public class MetaDescriptionFactory {
         return (FameDescription) base.getAnnotation(FameDescription.class);
     }
 
-    protected void initializeBaseClass() {
-        instance.setBaseClass(base);
-    }
 
     public void initializeInstance() {
         this.initializePackage();
         this.createPropertyFactories();
         this.createPropertyInstances();
-        this.initializeSuperclass();
         this.initializeProperties();
-        this.initializeBaseClass();
-        this.initializeIsAbstract();
         this.initializeTraits();
     }
 
-    protected void initializeIsAbstract() {
-        boolean isAbstract = Modifier.isAbstract(base.getModifiers());
-        instance.setAbstract(isAbstract);
-    }
 
     protected void initializePackage() {
         PackageDescription pack = repository.initializePackageNamed(this.packageName());
@@ -115,16 +80,8 @@ public class MetaDescriptionFactory {
         }
     }
 
-    protected void initializeSuperclass() {
-        repository.with(base.getSuperclass());
-        MetaDescription superclass = (MetaDescription) repository.getDescription(base.getSuperclass());
-        instance.setSuperclass(superclass);
-    }
-
     protected void initializeTraits() {
         for (Class i : base.getInterfaces()){
-            if (i.getSimpleName().equals("Named") || i.getSimpleName().equals("Nested"))
-                return;
             repository.with(i);
             FM3Trait trait = (FM3Trait) repository.getDescription(i);
             instance.addOwnedTrait(trait);

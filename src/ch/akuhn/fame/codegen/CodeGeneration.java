@@ -380,11 +380,13 @@ public class CodeGeneration {
 
         StringBuilder builder = new StringBuilder();
         for (FM3Type meta : m.getClasses()) {
-            builder.append("\t\tmetamodel.with(");
-            builder.append(packageName);
-            builder.append('.');
-            builder.append(className(meta));
-            builder.append(".class);\n");
+            if (!meta.getName().equals(name)) {
+                builder.append("\t\tmetamodel.with(");
+                builder.append(packageName);
+                builder.append('.');
+                builder.append(className(meta));
+                builder.append(".class);\n");
+            }
         }
         template.set("ADDCLASSES", builder.toString());
 
