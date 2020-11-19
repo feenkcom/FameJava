@@ -10,6 +10,6 @@ This is an implementation of Fame in Java that supports traits concept that is u
 
 ## Developer
 
-In order to make it work with [VerveineJ](https://github.com/moostechnology/VerveineJ), you **must** compile with Java 10!
+In order to make it work with [VerveineJ](https://github.com/moosetechnology/VerveineJ), you **must** compile with Java 10!
 
 ## License: GNU LESSER GENERAL PUBLIC LICENSE
