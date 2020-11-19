@@ -73,9 +73,9 @@ public class RepositoryVisitor implements Runnable {
 
 	private void handleChildrenProperties(Object each, MetaDescription meta /**, Collection<PropertyDescription> childrenProperties*/) {
 		for (PropertyDescription property : sortAttributes(meta.allProperties())) {
-            Collection<?> values = property.readAll(each);
             if (property.isDerived())
                 continue;
+            Collection<?> values = property.readAll(each);
 //            if (property.isContainer())
 //                continue;
             if (property.getType() == MetaDescription.BOOLEAN && !property.isMultivalued() && !values.isEmpty()) {

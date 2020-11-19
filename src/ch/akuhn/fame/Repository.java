@@ -120,19 +120,23 @@ public class Repository {
             assert meta != null : element.getClass();
             for (PropertyDescription property : meta.allProperties()) {
                 if (!property.isPrimitive()) {
-                    boolean isRoot = property.getType().isRoot();
-                    for (Object value : property.readAll(element)) {
-                        assert value != null : property.getFullname();
-                        if (!(isRoot &&
-                                (value instanceof String || 
-                                value instanceof Boolean || 
-                                value instanceof Number))) {
-                            try {
-                                this.add(value);
-                            } catch (ClassNotMetadescribedException e) {
-                                throw new ElementInPropertyNotMetadescribed(property);
+                    try {
+                        boolean isRoot = property.getType().isRoot();
+                        for (Object value : property.readAll(element)) {
+                            assert value != null : property.getFullname();
+                            if (!(isRoot &&
+                                    (value instanceof String ||
+                                            value instanceof Boolean ||
+                                            value instanceof Number))) {
+                                try {
+                                    this.add(value);
+                                } catch (ClassNotMetadescribedException e) {
+                                    throw new ElementInPropertyNotMetadescribed(property);
+                                }
                             }
                         }
+                    } catch (UnsupportedOperationException ex) {
+                        System.err.println(property.getFullname() + " not supported yet.");
                     }
                 }
             }
