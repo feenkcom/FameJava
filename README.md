@@ -12,8 +12,8 @@ This is an implementation of Fame in Java that supports traits concept that is u
 
 To generate the java code from a *.mse* file please:
 
-1. add the *.mse* file under the "samples" folder.
-2. under `test.ch.akuhn.fame.codegen` create a new "target" following the template of other Codegen class
+1. add the *.mse* file under the "samples/ch/unibe/fame/resources" folder.
+2. under `test.ch.akuhn.fame.codegen.target` create a new "target" following the template of other Codegen class
 3. execute the test to generate the code under the folder gen
 
 ## Developer
