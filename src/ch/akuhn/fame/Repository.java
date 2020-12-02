@@ -136,7 +136,11 @@ public class Repository {
                             }
                         }
                     } catch (UnsupportedOperationException ex) {
-                        System.err.println(property.getFullname() + " not supported yet.");
+                        /*
+                        property is not implemented.. but it is normal for some derived property we do not support
+                        with the parser (for instance, VerveineJ)
+                         */
+                        // System.err.println(property.getFullname() + " not supported yet.");
                     }
                 }
             }
