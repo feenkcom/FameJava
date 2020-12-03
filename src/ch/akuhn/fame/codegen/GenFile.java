@@ -4,7 +4,7 @@ import ch.akuhn.foreach.Collect;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.TreeSet;
 
 public abstract class GenFile {
 
@@ -23,7 +23,7 @@ public abstract class GenFile {
         this.name = name;
         this.body = new StringBuilder();
         this.fields = new StringBuilder();
-        this.imports = new HashSet();
+        this.imports = new TreeSet<>();
     }
 
     public <T> void addImport(Class<T> tee) {
