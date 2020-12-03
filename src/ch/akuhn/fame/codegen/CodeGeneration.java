@@ -423,7 +423,7 @@ public class CodeGeneration {
     }
 
     public String mapPackageName(String name) {
-        return name.toLowerCase();
+        return name.toLowerCase().replaceAll("-","");
     }
 
     public String outputDirectory() {
