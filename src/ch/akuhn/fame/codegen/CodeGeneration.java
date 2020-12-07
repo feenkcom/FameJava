@@ -23,10 +23,7 @@ import static ch.akuhn.util.Strings.toUpperFirstChar;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import ch.akuhn.fame.FameDescription;
@@ -321,13 +318,18 @@ public class CodeGeneration {
             code.addSuperclass(this.packageName(m.getSuperclass().getPackage()), className(m.getSuperclass()));
         }
         // My own properties
-        for (PropertyDescription property : m.getProperties()) {
+        List<PropertyDescription> propertyDescriptions = m.getProperties().stream().collect(Collectors.toList());
+        propertyDescriptions.sort(Comparator.comparing(Element::getName));
+        for (PropertyDescription property : propertyDescriptions) {
             this.acceptProperty(property, m);
         }
         // Properties from my traits
         Set<PropertyDescription> propertyDescriptionSet = new HashSet<>();
         m.getAllTraits().stream().map( c -> c.getProperties()).forEach(propertyDescriptionSet::addAll);
-        for (PropertyDescription propertyDescription:  propertyDescriptionSet) {
+        propertyDescriptions.clear();
+        propertyDescriptions.addAll(propertyDescriptionSet);
+        propertyDescriptions.sort(Comparator.comparing(Element::getName));
+        for (PropertyDescription propertyDescription:  propertyDescriptions) {
             this.acceptProperty(propertyDescription, m);
         }
 
@@ -371,7 +373,7 @@ public class CodeGeneration {
             }
         }
 
-        String name = toUpperFirstChar(m.getName()) + "Model";
+        String name = toUpperFirstChar(m.getName().replaceAll("-", "") + "Model");
         Template template = Template.get("Package");
         String packageName = this.packageName(m);
         template.set("PACKAGE", packageName);
