@@ -158,7 +158,7 @@ public class Scanner implements Iterator<Token>, Iterable<Token> {
         in.mark();
         while (true) {
             this.letterExpected();
-            while (isLetterOrDigit(in.peek()))
+            while (isLetterOrDigit(in.peek()) || in.peek() == '-')
                 in.inc();
             char ch = in.peek();
             if (ch == ':')
