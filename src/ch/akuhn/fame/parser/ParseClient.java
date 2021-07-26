@@ -57,4 +57,8 @@ public interface ParseClient {
 
     public void serial(int index);
 
+    default public void printEntitySeparator() {
+
+    }
+
 }

@@ -18,15 +18,8 @@
 
 package ch.akuhn.fame.internal;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import ch.akuhn.fame.Repository;
 import ch.akuhn.fame.fm3.Element;
@@ -38,9 +31,8 @@ import ch.akuhn.util.query.Select;
 
 /**
  * Accepts a {@link ParseClient} on a repository.
- * 
+ *
  * @author akuhn
- * 
  */
 public class RepositoryVisitor implements Runnable {
 
@@ -51,7 +43,7 @@ public class RepositoryVisitor implements Runnable {
     public RepositoryVisitor(Repository repo, ParseClient visitor) {
         this.repo = repo;
         this.visitor = visitor;
-        this.index = new HashMap<Object,Integer>();
+        this.index = new HashMap<Object, Integer>();
         int serial = 1;
         for (Object each : repo.getElements()) {
             index.put(each, serial++);
@@ -71,17 +63,21 @@ public class RepositoryVisitor implements Runnable {
         visitor.endElement(meta.getFullname());
     }
 
-	private void handleChildrenProperties(Object each, MetaDescription meta /**, Collection<PropertyDescription> childrenProperties*/) {
-		for (PropertyDescription property : sortAttributes(meta.allProperties())) {
-            if (property.isDerived())
-                continue;
+    private void handleChildrenProperties(Object each, MetaDescription meta /**, Collection<PropertyDescription> childrenProperties*/) {
+        Iterator<PropertyDescription> propertiesIterator = sortAttributes(meta.allProperties().stream()
+                .filter(propertyDescription -> !propertyDescription.isDerived())
+                .filter(property -> !(property.getType() == MetaDescription.BOOLEAN && !property.isMultivalued() && !property.readAll(each).isEmpty() && !(Boolean) property.readAll(each).iterator().next()))
+                .filter(property -> !property.readAll(each).isEmpty())
+                .collect(Collectors.toList())).iterator();
+
+        while (propertiesIterator.hasNext()) {
+            PropertyDescription property = propertiesIterator.next();
             Collection<?> values = property.readAll(each);
 //            if (property.isContainer())
 //                continue;
-            if (property.getType() == MetaDescription.BOOLEAN && !property.isMultivalued() && !values.isEmpty()) {
-                if (!(Boolean) values.iterator().next())
+            /*if (property.getType() == MetaDescription.BOOLEAN && !property.isMultivalued() && !values.isEmpty() && !(Boolean) values.iterator().next()) {
                     continue;
-            }
+            }*/
             if (!values.isEmpty()) {
                 visitor.beginAttribute(property.getName());
                 boolean isPrimitive = property.getType().isPrimitive();
@@ -96,35 +92,36 @@ public class RepositoryVisitor implements Runnable {
                         }
                     }
                     if (isPrimitive || (isRoot &&
-                            (value instanceof String || 
-                            value instanceof Boolean || 
-                            value instanceof Number))) {
+                            (value instanceof String ||
+                                    value instanceof Boolean ||
+                                    value instanceof Number))) {
                         visitor.primitive(value);
                     } else {
 //                        if (isComposite) {
 //                            this.acceptElement(value);
 //                        } else {
-                            Integer serial = getSerialNumber(property, value);
-                            assert serial != null;
-                            visitor.reference(serial);
+                        Integer serial = getSerialNumber(property, value);
+                        assert serial != null;
+                        visitor.reference(serial);
 //                        }
                     }
                 }
                 visitor.endAttribute(property.getName());
+                if (propertiesIterator.hasNext()) {
+                    visitor.printEntitySeparator();
+                }
             }
         }
-	}
-    
+    }
+
     /**
-     * @param an element which was found by browsing the object-graph, but which
-     * was not known to the repository yet.
      * @author tverwaes
-     *
      */
     static public class UnknownElementError extends AssertionError {
         private static final long serialVersionUID = -6761765027263961388L;
         public Object unknown;
         public Element element;
+
         public UnknownElementError(Element element, Object unknown) {
             super("Unknown element: " + unknown + " found via description: " + element.getFullname());
             this.unknown = unknown;
@@ -132,15 +129,16 @@ public class RepositoryVisitor implements Runnable {
         }
     }
 
-    /** Returns the serial number of a given element
-     * 
+    /**
+     * Returns the serial number of a given element
+     *
      * @param element an element of the current repository.
-     * @throws AssertionError if the given object is not an element of the
-     * current repository. This may happen, if a meta-described property refers
-     * to objects that are not contained in the repository. Repositories must
-     * be complete under transitive closure, that is, all objects reachable from
-     * elements in a repository must be elements of the repository themselves. 
      * @return a unique serial number.
+     * @throws AssertionError if the given object is not an element of the
+     *                        current repository. This may happen, if a meta-described property refers
+     *                        to objects that are not contained in the repository. Repositories must
+     *                        be complete under transitive closure, that is, all objects reachable from
+     *                        elements in a repository must be elements of the repository themselves.
      */
     private int getSerialNumber(Element description, Object element) {
         Integer serial = index.get(element);
@@ -153,20 +151,27 @@ public class RepositoryVisitor implements Runnable {
         // We export all elements from the repository, not just the root ones.
         Collection<Object> elements = repo.getElements(); //rootElements(repo);
         elements = removeBuiltinMetaDescriptions(elements);
-        for (Object each : elements) {
+        Iterator iterator = elements.iterator();
+        while (iterator.hasNext()) {
+            Object each = iterator.next();
             this.acceptElement(each);
+            if (iterator.hasNext()) {
+                visitor.printEntitySeparator();
+            }
+
         }
         visitor.endDocument();
     }
 
     private Collection<PropertyDescription> childrenProperties(MetaDescription meta) {
-		Select<PropertyDescription> query = Select.from(meta.allProperties());
-		for (Select<PropertyDescription> each : query) {
-			if (each.element.isComposite() == false) {
-				continue;
-			}
-			each.yield = true;
-		};
+        Select<PropertyDescription> query = Select.from(meta.allProperties());
+        for (Select<PropertyDescription> each : query) {
+            if (each.element.isComposite() == false) {
+                continue;
+            }
+            each.yield = true;
+        }
+        ;
         return query.result();
 //        return Blocks.detect(meta.getAttributes(), new Predicate<PropertyDescription>() {
 //            public boolean apply(PropertyDescription each) {
@@ -174,10 +179,10 @@ public class RepositoryVisitor implements Runnable {
 //            }
 //        });
     }
-    
+
     private PropertyDescription childrenProperty(MetaDescription meta) {
         Detect<PropertyDescription> query = Detect.from(meta.allProperties());
-        for (Detect<PropertyDescription> each: query) {
+        for (Detect<PropertyDescription> each : query) {
             each.yield = each.element.isComposite();
         }
         return query.resultIfNone(null);
@@ -201,7 +206,7 @@ public class RepositoryVisitor implements Runnable {
     @SuppressWarnings("unchecked")
     private Collection<Object> rootElements(final Repository m) {
         Select<Object> query = Select.from(m.getElements());
-        for (Select<Object> each: query) {
+        for (Select<Object> each : query) {
             MetaDescription meta = m.descriptionOf(each.element);
             PropertyDescription containerProperty = meta.containerPropertyOrNull();
             if (containerProperty != null) {
@@ -209,7 +214,8 @@ public class RepositoryVisitor implements Runnable {
                 if (container != null) continue;
             }
             each.yield = true;
-        };
+        }
+        ;
         return query.result();
     }
 
