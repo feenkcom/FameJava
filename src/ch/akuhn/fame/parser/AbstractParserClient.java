@@ -30,7 +30,6 @@ public class AbstractParserClient implements ParseClient {
     }
 
     public void beginDocument() {
-        // TODO Auto-generated method stub
 
     }
 
@@ -38,7 +37,6 @@ public class AbstractParserClient implements ParseClient {
     }
 
     public void directive(String name, String... params) {
-        // TODO Auto-generated method stub
 
     }
 
@@ -46,7 +44,6 @@ public class AbstractParserClient implements ParseClient {
     }
 
     public void endDocument() {
-        // TODO Auto-generated method stub
 
     }
 
@@ -63,7 +60,6 @@ public class AbstractParserClient implements ParseClient {
     }
 
     public void reference(String name, int index) {
-        // TODO Auto-generated method stub
 
     }
 
