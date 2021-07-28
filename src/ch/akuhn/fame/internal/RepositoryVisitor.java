@@ -80,6 +80,9 @@ public class RepositoryVisitor implements Runnable {
             }*/
             if (!values.isEmpty()) {
                 visitor.beginAttribute(property.getName());
+                if (property.isMultivalued()) {
+                    visitor.beginMultivalue(property.getName());
+                }
                 boolean isPrimitive = property.getType().isPrimitive();
                 boolean isRoot = property.getType().isRoot();
 //                boolean isComposite = (childrenProperties.contains(property));
@@ -105,6 +108,9 @@ public class RepositoryVisitor implements Runnable {
                         visitor.reference(serial);
 //                        }
                     }
+                }
+                if (property.isMultivalued()) {
+                    visitor.endMultivalue(property.getName());
                 }
                 visitor.endAttribute(property.getName());
                 if (propertiesIterator.hasNext()) {
