@@ -86,11 +86,16 @@ public class RepositoryVisitor implements Runnable {
                 boolean isPrimitive = property.getType().isPrimitive();
                 boolean isRoot = property.getType().isRoot();
 //                boolean isComposite = (childrenProperties.contains(property));
-                for (Object value : values) {
+                Iterator valueIterator = values.iterator();
+                while (valueIterator.hasNext()) {
+                    Object value = valueIterator.next();
                     if (value instanceof MetaDescription) {
                         MetaDescription m = (MetaDescription) value;
                         if (m.isPrimitive() || m.isRoot()) {
                             visitor.reference(m.getName());
+                            if (valueIterator.hasNext()) {
+                                visitor.printPropertySeparator();
+                            }
                             continue;
                         }
                     }
@@ -107,6 +112,9 @@ public class RepositoryVisitor implements Runnable {
                         assert serial != null;
                         visitor.reference(serial);
 //                        }
+                    }
+                    if (valueIterator.hasNext()) {
+                        visitor.printPropertySeparator();
                     }
                 }
                 if (property.isMultivalued()) {

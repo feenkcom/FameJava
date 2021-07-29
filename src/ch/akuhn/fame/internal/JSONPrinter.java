@@ -75,13 +75,9 @@ public class JSONPrinter extends AbstractPrintClient {
 
     @Override
     public void primitive(Object value) {
-        if (value instanceof String) {
-            append('"');
-            append((String) value);
-            append('"');
-        } else {
-            assert false : "Unknown primitive: " + value + " of type: " + value.getClass().getCanonicalName();
-        }
+        append('"');
+        append(value.toString());
+        append('"');
     }
 
     @Override
@@ -118,6 +114,10 @@ public class JSONPrinter extends AbstractPrintClient {
     }
 
     public void printEntitySeparator() {
+        append(",");
+    }
+
+    public void printPropertySeparator() {
         append(",");
     }
 
