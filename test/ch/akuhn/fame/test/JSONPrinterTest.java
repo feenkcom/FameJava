@@ -31,6 +31,21 @@ public class JSONPrinterTest extends TestCase {
         assertEquals(stream.toString(), "\"hello\":");
     }
 
+    public void testPrimitive() {
+        printer.primitive("value");
+        assertEquals(stream.toString(), "\"value\"");
+    }
+
+    public void testPrimitiveWithSpecialCharacter() {
+        printer.primitive("MySuper\"String");
+        assertEquals(stream.toString(), "\"MySuper\\\"String\"");
+    }
+
+    public void testPrimitiveWithSpecialCharacterAndActualExample() {
+        printer.primitive("print(\"Printer \" + name() + \" prints \"+ thePacket.contents(),false)");
+        assertEquals(stream.toString(), "\"print(\\\"Printer \\\" + name() + \\\" prints \\\"+ thePacket.contents(),false)\"");
+    }
+
     public void testReference() {
         printer.reference("hello");
         assertEquals(removeWhiteSpaces(stream.toString()), "{\"ref\":\"hello\"}");

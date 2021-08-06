@@ -76,7 +76,18 @@ public class JSONPrinter extends AbstractPrintClient {
     @Override
     public void primitive(Object value) {
         append('"');
-        append(value.toString());
+        if (value.getClass() == String.class){
+            for (char c : ((String) value).toCharArray()) {
+                if (c == '"') {
+                    append('\\');
+                } else if (c == '\\') {
+                    append('\\');
+                }
+                append(c);
+            }
+        } else {
+            append(value.toString());
+        }
         append('"');
     }
 
