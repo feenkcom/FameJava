@@ -37,10 +37,15 @@ public abstract class GenFile {
         imports.add(aPackage + "." + className);
     }
 
-    public void addSuperclass(String aPackage, String className) {
-        if (className.equals("Object") && aPackage.equals("java.lang")) return;
-        this.addImport(aPackage, className);
-        this.superName = className;
+    public void addSuperclass(String packageName, String superClassName) {
+        if (superClassName.equals("Object") && packageName.equals("java.lang")) return;
+
+        if (this.name.equals(superClassName)) {
+            this.superName = packageName + "." + superClassName;
+        } else {
+            this.addImport(packageName, superClassName);
+            this.superName = superClassName;
+        }
     }
 
     public abstract void generateCode(Appendable stream) throws IOException;
