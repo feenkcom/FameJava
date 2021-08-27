@@ -301,39 +301,54 @@ public class CodeGeneration {
 
     }
     
-    private void acceptClass(MetaDescription m) throws IOException {
-        if (m.isPrimitive())
+    private void acceptClass(MetaDescription metaDescription) throws IOException {
+        if (metaDescription.isPrimitive())
             return;
-        code = new JavaFile(this.packageName(m.getPackage()), className(m));
-        code.setModelPackagename(m.getPackage().getFullname());
-        code.setModelClassname(m.getName());
-        code.setTraits(m.getTraits().stream().map(FM3Type::getName).collect(Collectors.toList()));
+        code = new JavaFile(this.packageName(metaDescription.getPackage()), className(metaDescription));
+        code.setModelPackagename(metaDescription.getPackage().getFullname());
+        code.setModelClassname(metaDescription.getName());
+        Map<String, List<FM3Trait>> groupedTraits = metaDescription.getTraits().stream().collect(Collectors.groupingBy(FM3Type::getName));
+
+        groupedTraits.forEach((name, fm3Traits) -> {
+
+            if (fm3Traits.size()>1) {
+                // There are multiple traits with the same name
+                for (FM3Trait trait : fm3Traits)
+                    code.addTrait(packageName(trait.getPackage()) + "." + trait.getName());
+
+            } else {
+                // There is only one trait with that name
+                for (FM3Trait trait : fm3Traits)
+                    code.addTrait(trait.getName());
+            }
+        });
+
         code.addImport(FameDescription.class);
         code.addImport(FamePackage.class);
-        for (FM3Trait t : m.getAllTraits()) {
+        for (FM3Trait t : metaDescription.computeAllTraits()) {
             code.addImport(packageName(t.getPackage()), t.getName());
         }
 
-        if (m.getSuperclass() != null) {
-            code.addSuperclass(this.packageName(m.getSuperclass().getPackage()), className(m.getSuperclass()));
+        if (metaDescription.getSuperclass() != null) {
+            code.addSuperclass(this.packageName(metaDescription.getSuperclass().getPackage()), className(metaDescription.getSuperclass()));
         }
         // My own properties
-        List<PropertyDescription> propertyDescriptions = m.getProperties().stream().collect(Collectors.toList());
+        List<PropertyDescription> propertyDescriptions = metaDescription.getProperties().stream().collect(Collectors.toList());
         propertyDescriptions.sort(Comparator.comparing(Element::getName));
         for (PropertyDescription property : propertyDescriptions) {
-            this.acceptProperty(property, m);
+            this.acceptProperty(property, metaDescription);
         }
         // Properties from my traits
         Set<PropertyDescription> propertyDescriptionSet = new HashSet<>();
-        m.getAllTraits().stream().map( c -> c.getProperties()).forEach(propertyDescriptionSet::addAll);
+        metaDescription.computeAllTraits().stream().map(c -> c.getProperties()).forEach(propertyDescriptionSet::addAll);
         propertyDescriptions.clear();
         propertyDescriptions.addAll(propertyDescriptionSet);
         propertyDescriptions.sort(Comparator.comparing(Element::getName));
         for (PropertyDescription propertyDescription:  propertyDescriptions) {
-            this.acceptProperty(propertyDescription, m);
+            this.acceptProperty(propertyDescription, metaDescription);
         }
 
-        File file = new File(folder, className(m) + ".java");
+        File file = new File(folder, className(metaDescription) + ".java");
         FileWriter stream = new FileWriter(file);
         code.generateCode(stream);
         stream.close();
@@ -346,7 +361,7 @@ public class CodeGeneration {
         code.setTraits(m.getTraits().stream().map(FM3Type::getName).collect(Collectors.toList()));
         code.addImport(FameDescription.class);
         code.addImport(FamePackage.class);
-        for (FM3Trait t : m.getAllTraits()) {
+        for (FM3Trait t : m.computeAllTraits()) {
             code.addImport(packageName(t.getPackage()), t.getName());
         }
 

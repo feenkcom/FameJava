@@ -24,6 +24,7 @@ public abstract class GenFile {
         this.body = new StringBuilder();
         this.fields = new StringBuilder();
         this.imports = new TreeSet<>();
+        this.traits = new TreeSet<>();
     }
 
     public <T> void addImport(Class<T> tee) {
@@ -58,6 +59,10 @@ public abstract class GenFile {
             stream.append("import ").append(each).append(";\n");
         }
         return stream.toString();
+    }
+
+    public void addTrait(String trait) {
+        traits.add(trait);
     }
 
     public void setTraits(Collection<String> traits) {

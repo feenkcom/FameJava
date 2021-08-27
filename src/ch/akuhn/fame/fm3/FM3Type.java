@@ -21,11 +21,8 @@ package ch.akuhn.fame.fm3;
 import ch.akuhn.fame.FameDescription;
 import ch.akuhn.fame.FamePackage;
 import ch.akuhn.fame.FameProperty;
-import ch.akuhn.fame.MetaRepository;
 import ch.akuhn.fame.internal.Warnings;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 /**
@@ -176,11 +173,11 @@ public class FM3Type extends Element {
         return true;
     }
 
-    public Set<FM3Trait> getAllTraits() {
+    public Set<FM3Trait> computeAllTraits() {
         Set<FM3Trait> traits = new HashSet<>();
         traits.addAll(getTraits());
         for (FM3Trait t : traits) {
-            traits.addAll(t.getAllTraits());
+            traits.addAll(t.computeAllTraits());
         }
         return traits;
     }
