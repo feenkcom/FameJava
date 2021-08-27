@@ -19,8 +19,6 @@
 package ch.akuhn.fame.codegen;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashSet;
 
 public class InterfaceFile extends GenFile {
 
@@ -39,7 +37,7 @@ public class InterfaceFile extends GenFile {
                 .set("IMPLEMENTS", superName == null ? "" : "extends " + superName);
         template.set("IMPORTS", getImports());
         template.set("FIELDS", getFieldsContentStream().toString());
-        template.set("METHODS", getContentStream().toString());
+        template.set("METHODS", getBodyContentStream().toString());
         stream.append(template.apply());
     }
 }

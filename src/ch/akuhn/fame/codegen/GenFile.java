@@ -50,7 +50,7 @@ public abstract class GenFile {
 
     public abstract void generateCode(Appendable stream) throws IOException;
 
-    public StringBuilder getContentStream() {
+    public StringBuilder getBodyContentStream() {
         return body;
     }
 

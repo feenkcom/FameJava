@@ -138,7 +138,7 @@ public class CodeGeneration {
         getter.set("PROPS", props);
 
         StringBuilder fieldsStream = code.getFieldsContentStream();
-        StringBuilder bodyStream = code.getContentStream();
+        StringBuilder bodyStream = code.getBodyContentStream();
         fieldsStream.append(field.apply());
         bodyStream.append(getter.apply());
         bodyStream.append(setter.apply());
@@ -189,7 +189,7 @@ public class CodeGeneration {
         }
         getter.set("PROPS", props);
 
-        StringBuilder stream = code.getContentStream();
+        StringBuilder stream = code.getBodyContentStream();
         stream.append(getter.apply());
         return null;
     }
@@ -225,7 +225,7 @@ public class CodeGeneration {
         }
         getter.set("PROPS", props);
 
-        StringBuilder stream = code.getContentStream();
+        StringBuilder stream = code.getBodyContentStream();
         stream.append(getter.apply());
         return null;
     }
@@ -279,7 +279,7 @@ public class CodeGeneration {
         getter.set("PROPS", props);
 
         StringBuilder fieldsStream = code.getFieldsContentStream();
-        StringBuilder bodyStream = code.getContentStream();
+        StringBuilder bodyStream = code.getBodyContentStream();
         fieldsStream.append(field.apply());
         bodyStream.append(getter.apply());
         bodyStream.append(setter.apply());
@@ -338,13 +338,17 @@ public class CodeGeneration {
         for (PropertyDescription property : propertyDescriptions) {
             this.acceptProperty(property, metaDescription);
         }
-        // Properties from my traits
+        // Properties from my traits that are not in my own properties
         Set<PropertyDescription> propertyDescriptionSet = new HashSet<>();
-        metaDescription.computeAllTraits().stream().map(c -> c.getProperties()).forEach(propertyDescriptionSet::addAll);
+        metaDescription.computeAllTraits().stream()
+                .map(c -> c.getProperties().stream()
+                        .filter(traitProperty -> propertyDescriptions.stream().noneMatch(myProperty -> myProperty.getName().equals(traitProperty.getName())))
+                        .collect(Collectors.toList()))
+                .forEach(propertyDescriptionSet::addAll);
         propertyDescriptions.clear();
         propertyDescriptions.addAll(propertyDescriptionSet);
         propertyDescriptions.sort(Comparator.comparing(Element::getName));
-        for (PropertyDescription propertyDescription:  propertyDescriptions) {
+        for (PropertyDescription propertyDescription : propertyDescriptions) {
             this.acceptProperty(propertyDescription, metaDescription);
         }
 
