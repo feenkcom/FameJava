@@ -1,13 +1,13 @@
 package ch.akuhn.fame.test;
 
 import ch.akuhn.fame.Tower;
-import ch.akuhn.fame.internal.JSONPrinter;
+import ch.akuhn.fame.internal.JSONPrettyPrinter;
 import ch.akuhn.fame.parser.InputSource;
 import junit.framework.TestCase;
 
 public class JSONPrinterTest extends TestCase {
 
-    private JSONPrinter printer;
+    private JSONPrettyPrinter printer;
     private Appendable stream;
 
     public void testExportJSON() {
@@ -23,7 +23,7 @@ public class JSONPrinterTest extends TestCase {
     public void setUp() throws Exception {
         super.setUp();
         stream = new StringBuilder();
-        printer = new JSONPrinter(stream);
+        printer = new JSONPrettyPrinter(stream);
     }
 
     public void testBeginAttributeSimple() {

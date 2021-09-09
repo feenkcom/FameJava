@@ -1,18 +1,25 @@
 package ch.akuhn.fame.internal;
 
-public class JSONPrinter extends AbstractPrintClient {
+
+/**
+ * This class a helps printing model in JSON
+ *
+ * @author Sabri.BENBRAHIM, Benoit "badetitou" VERHAEGHE
+ */
+public class JSONPrettyPrinter extends AbstractPrintClient {
 
     /**
      * Constructor
      *
      * @param stream in which we have to write
      */
-    public JSONPrinter(Appendable stream) {
+    public JSONPrettyPrinter(Appendable stream) {
         super(stream);
     }
 
     @Override
     public void beginAttribute(String name) {
+        lntabs();
         append("\"");
         append(name);
         append("\"");
@@ -27,10 +34,13 @@ public class JSONPrinter extends AbstractPrintClient {
 
     @Override
     public void beginElement(String name) {
+        this.indentation++;
         append("{");
+        lntabs();
         append("\"FM3\":\"");
         append(name);
         append("\",");
+        lntabs();
     }
 
     public void beginMultivalue(String name) {
@@ -47,13 +57,16 @@ public class JSONPrinter extends AbstractPrintClient {
 
     @Override
     public void endDocument() {
+        lntabs();
         append("]");
         close();
     }
 
     @Override
     public void endElement(String name) {
+        lntabs();
         append("}");
+        this.indentation--;
     }
 
     public void endMultivalue(String name) {
@@ -82,16 +95,20 @@ public class JSONPrinter extends AbstractPrintClient {
 
     @Override
     public void reference(int index) {
+        append(" ");
         append("{");
         append("\"ref\":");
+        append(" ");
         append(String.valueOf(index));
         append("}");
     }
 
     @Override
     public void reference(String name) {
+        append(" ");
         append("{");
         append("\"ref\":");
+        append(" ");
         append("\"");
         append(name);
         append("\"");

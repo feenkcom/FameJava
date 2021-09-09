@@ -27,6 +27,7 @@ import java.util.HashSet;
 import ch.akuhn.fame.MetaRepository.ClassNotMetadescribedException;
 import ch.akuhn.fame.fm3.MetaDescription;
 import ch.akuhn.fame.fm3.PropertyDescription;
+import ch.akuhn.fame.internal.JSONPrettyPrinter;
 import ch.akuhn.fame.internal.JSONPrinter;
 import ch.akuhn.fame.internal.MSEPrinter;
 import ch.akuhn.fame.internal.RepositoryVisitor;
@@ -232,6 +233,14 @@ public class Repository {
 
     public void exportJSON(Appendable stream) {
         this.accept(new JSONPrinter(stream));
+    }
+
+    public void exportPrettyJSONFile(String filename) {
+        this.exportJSON(Files.openWrite(filename));
+    }
+
+    public void exportPrettyJSON(Appendable stream) {
+        this.accept(new JSONPrettyPrinter(stream));
     }
 
     public Collection getElements() {
